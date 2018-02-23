@@ -1,11 +1,9 @@
 // main for hcc
-use std::fs::File;
 
-mod file;
+mod load;
 mod lex;
 
 fn main() {
-    println!("{}",file::file_to_str("lexer.rs"));
-    
+    println!("{}",load::file_to_str("lex.rs"));
 }
 
