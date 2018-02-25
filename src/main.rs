@@ -1,9 +1,11 @@
 // main for hcc
 
+use std::env;
+
 mod load;
 mod lex;
 
 fn main() {
-    println!("{}",load::file_to_str("lex.rs"));
+    let args: Vec<String> = env::args().collect();
 }
 
