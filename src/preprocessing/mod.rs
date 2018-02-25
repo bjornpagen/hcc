@@ -1,6 +1,11 @@
-// transforms our file bufferlinto (more) machine-readable tokens
+// transforms our file into (more) machine-readable tokens
 
-mod tokens;
+pub mod tokens;
+
+use preprocessing::tokens::*;
+use preprocessing::tokens::Keyword::*;
+use preprocessing::tokens::Direction::*;
+use preprocessing::tokens::Basetype::*;
 
 pub fn lex(buf: &Vec<char>) -> Vec<Token> {
     let mut pos: usize = 0;
@@ -8,8 +13,8 @@ pub fn lex(buf: &Vec<char>) -> Vec<Token> {
 
     // keep generating tokens until we reach the end of the file
     let mut tup = parse_token_at(buf,pos);
-    while tup != None {
-        Some(new_tok,new_pos) = tup;
+    while tup.is_some() {
+        let Some((new_tok,new_pos)) = tup;
 
         // ignore whitespace tokens
         if new_tok != Token::Whitespace {
@@ -22,28 +27,15 @@ pub fn lex(buf: &Vec<char>) -> Vec<Token> {
      token_list
 }
 
-fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option(Token, usize) {
-    // closure to recognize tokenizable single chars
-    let tokenize_single_char = |tok| {
-        match c {
-            '{' => Token::Brace::Left,
-            '}' => Token::Brace::Right,
-            '(' => Token::Parenthesis::Left,
-            ')' => Token::Parenthesis::Right,
-            ';' => Token::Semicolon,
-            ' ' => Token::Whitespace,
-            _   => None,
-        }
-    }
-
+fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option<(Token, usize)> {
     // our buffer for parsing multi-char long tokens
     let mut lit_buf: Vec<char> = Vec::new();
 
     // instantly return our token if it is single char
     let tok = tokenize_single_char(buf[pos]);
-    if tok != None {
+    if tok.is_some() {
         let Some(tok) = tok;
-        return Some(tok, pos+1)
+        return Some((tok, pos+1))
     } else {
         // it isn't a sigle char :(
         // time for multi-char parsing fun
@@ -55,14 +47,14 @@ fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option(Token, usize) {
 
     // keep looking at next char (unless we are at the end of the file
     let mut c = buf.get(local_pos);
-    while c != None {
+    while c.is_some()  {
         let Some(c) = c;
         // if that char is single-char tokenizable, we have our final token
-        if tokenize_single_char(c) != None {
-            return Some(tokenize_multi_char(&lit_buf[..]), local_pos);
+        if tokenize_single_char(*c).is_some() {
+            return Some((tokenize_multi_char(&lit_buf[..]), local_pos));
         } else {
             // if not, do it again
-            lit_buf.push(c);
+            lit_buf.push(*c);
             local_pos += 1;
         }
     }
@@ -70,8 +62,24 @@ fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option(Token, usize) {
     None
 }
 
+// used to parse single-char tokens
+fn tokenize_single_char(c: char) -> Option<Token> {
+    match c {
+        '{' => Some(Token::Brace(Left)),
+        '}' => Some(Token::Brace(Right)),
+        '(' => Some(Token::Parenthesis(Left)),
+        ')' => Some(Token::Parenthesis(Right)),
+        ';' => Some(Token::Semicolon),
+        ' ' => Some(Token::Whitespace),
+        '\t' => Some(Token::Whitespace),
+        '\r' => Some(Token::Whitespace),
+        '\n' => Some(Token::Whitespace),
+        _   => None,
+    }
+}
+
 // converts a slice with many chars to a token
-fn tokenize_multi_char(&[char]) -> Token {
+fn tokenize_multi_char(buf: &[char]) -> Token {
 
 }
 

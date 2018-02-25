@@ -1,16 +1,11 @@
 // contains the enum tokens we use
 
-enum Brace {
+pub enum Direction {
     Left,
     Right,
 }
 
-enum Parenthesis {
-    Left,
-    Right,
-}
-
-enum Keyword {
+pub enum Keyword {
     Include,
     Define,
     Union,
@@ -25,7 +20,7 @@ enum Keyword {
     Return,
 }
 
-enum Basetype {
+pub enum Basetype {
     I0,
     I8,
     I16,
@@ -38,19 +33,20 @@ enum Basetype {
     U64,
 }
 
-enum Literal {
+pub enum Literal {
     String,
     Number,
 }
     
 
 pub enum Token {
-    Whitespace, // whitespace tokens should be eliminated in the parse phase
-    Brace,
-    Parenthesis,
+    Whitespace,
+    Brace(Direction),
+    Bracket(Direction),
+    Parenthesis(Direction),
     Semicolon,
-    Keyword,
-    Basetype,
+    Keyword(Keyword),
+    Basetype(Basetype),
     Identifier(String),
     Integer(u64),
 }
