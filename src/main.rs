@@ -2,6 +2,8 @@
 
 #![feature(io)]
 
+extern crate regex;
+
 use std::env;
 
 mod load;

@@ -2,6 +2,7 @@
 
 pub mod tokens;
 
+use regex::Regex;
 use preprocessing::tokens::*;
 use preprocessing::tokens::Keyword::*;
 use preprocessing::tokens::Direction::*;
@@ -80,6 +81,9 @@ fn tokenize_single_char(c: char) -> Option<Token> {
 
 // converts a slice with many chars to a token
 fn tokenize_multi_char(buf: &[char]) -> Token {
+    let s: String = buf.into_iter().cloned().collect();
+
+    match s {
 
 }
 
