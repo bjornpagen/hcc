@@ -39,6 +39,16 @@ fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option<(Token, usize)> {
     }
     let c = c.unwrap();
 
+    // test if c is a quotation mark
+    if *c == '"' {
+        let tup = tokenize_str(&buf,pos);
+        if tup.is_some() {
+            return Some(tup.unwrap());
+        } else {
+            panic!();
+        }
+    }
+
     // instantly return our token if it is single char
     let tok = tokenize_single_char(*c);
     if tok.is_some() {
@@ -95,7 +105,6 @@ fn tokenize_multi_char(buf: &[char]) -> Token {
             r"^[a-z]+$", // keyword
             r"^[A-z]+$", // identifier
             r"^\d+$", // number
-            r#"^".*"$"#, // str
             r"^.+$", // anything else
         ]).unwrap();
     }
@@ -140,13 +149,27 @@ fn tokenize_multi_char(buf: &[char]) -> Token {
             ),
         Some(2) => Token::Identifier(s),
         Some(3) => Token::Number(s.parse::<u64>().unwrap()),
-        Some(4) => Token::Str({
-                let len = s.len();
-                let new_s = s[1..len-1].to_string();
-                new_s
-            }),
-        Some(5) => Token::Unknown,
+        Some(4) => Token::Unknown,
         _ => panic!(),
     }
+}
+
+fn tokenize_str(buf: &[char], pos: usize) -> Option<(Token,usize)> {
+    let our_char = *buf.get(pos).unwrap();
+    let mut str_buf = String::new();
+    let mut local_pos = pos+1;
+
+    let mut c = buf.get(local_pos);
+    while c.is_some() {
+        if *c.unwrap() == our_char {
+            return Some((Token::Str(str_buf),local_pos+1));
+        }
+        str_buf.push(*c.unwrap());
+        local_pos+=1;
+        c = buf.get(local_pos);
+    }
+
+    // if we escape this loop, we have reached EOF
+    return None
 }
 
