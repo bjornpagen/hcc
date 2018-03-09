@@ -1,10 +1,14 @@
 // contains the enum tokens we use
 
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Direction {
     Left,
     Right,
 }
 
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Keyword {
     Include,
     Define,
@@ -20,6 +24,8 @@ pub enum Keyword {
     Return,
 }
 
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Basetype {
     I0,
     I8,
@@ -33,14 +39,18 @@ pub enum Basetype {
     U64,
 }
 
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Literal {
     String,
     Number,
 }
     
-
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Token {
     Whitespace,
+    Unknown,
     Brace(Direction),
     Bracket(Direction),
     Parenthesis(Direction),
@@ -48,5 +58,7 @@ pub enum Token {
     Keyword(Keyword),
     Basetype(Basetype),
     Identifier(String),
-    Integer(u64),
+    Str(String),
+    Number(u64),
 }
+
