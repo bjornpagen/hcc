@@ -41,24 +41,28 @@ pub enum Basetype {
 
 #[derive(Debug)]
 #[derive(PartialEq)]
-pub enum Literal {
-    String,
-    Number,
+pub enum Operator {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Equal,
 }
     
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub enum Token {
     Whitespace,
-    Unknown,
+    Semicolon,
     Brace(Direction),
     Bracket(Direction),
     Parenthesis(Direction),
-    Semicolon,
-    Keyword(Keyword),
     Basetype(Basetype),
+    Operator(Operator),
+    Keyword(Keyword),
     Identifier(String),
     Str(String),
     Number(u64),
+    Unknown,
 }
 
