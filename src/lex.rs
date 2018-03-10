@@ -88,7 +88,7 @@ fn tokenize_single_char(c: char) -> Option<Token> {
         ';' => Some(Token::Semicolon),
         '+' => Some(Token::Operator(Add)),
         '-' => Some(Token::Operator(Sub)),
-        '*' => Some(Token::Operator(Mul)),
+        '*' => Some(Token::Operator(Star)),
         '/' => Some(Token::Operator(Div)),
         '=' => Some(Token::Operator(Equal)),
         ',' => Some(Token::Comma),

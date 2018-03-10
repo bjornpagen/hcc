@@ -44,8 +44,8 @@ pub enum Basetype {
 pub enum Operator {
     Add,
     Sub,
-    Mul,
     Div,
+    Star,
     Equal,
 }
     
