@@ -30,31 +30,18 @@ fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option<(Token, usize)> {
     let mut lit_buf: Vec<char> = Vec::new();
 
     // check for array out of bounds
-    let c = buf.get(pos);
-    if c == None {
+    if buf.get(pos).is_none() {
         return None
-    }
-    let c = c.unwrap();
-
-    // test if c is a quotation mark
-    if *c == '"' {
-        let tup = tokenize_str(&buf,pos);
-        if tup.is_some() {
-            return Some(tup.unwrap());
-        } else {
-            panic!();
-        }
     }
 
     // instantly return our token if it is single char
-    let tok = tokenize_single_char(&c);
-    if tok.is_some() {
-        let tok = tok.unwrap();
-        return Some((tok, pos+1))
+    let tup = tokenize_single_char(&buf,pos);
+    if tup.is_some() {
+        return tup;
     } else {
         // it isn't a sigle char :(
         // time for multi-char parsing fun
-        lit_buf.push(*c);
+        lit_buf.push(buf[pos]);
     }
 
     // start keeping track of char positions
@@ -63,13 +50,12 @@ fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option<(Token, usize)> {
     // keep looking at next char (unless we are at the end of the file
     let mut current_char = buf.get(local_pos);
     while current_char.is_some()  {
-        let c = current_char.unwrap();
         // if that char is single-char tokenizable, we have our final token
-        if tokenize_single_char(&c).is_some() {
+        if tokenize_single_char(&buf,local_pos).is_some() {
             return Some((tokenize_multi_char(&lit_buf[..]), local_pos));
         } else {
             // if not, do it again
-            lit_buf.push(*c);
+            lit_buf.push(buf[local_pos]);
             local_pos += 1;
             current_char = buf.get(local_pos);
         }
@@ -79,25 +65,52 @@ fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option<(Token, usize)> {
 }
 
 // used to parse single-char tokens
-fn tokenize_single_char(c: &char) -> Option<Token> {
-    match *c {
-        ' ' => Some(Token::Whitespace),
-        '{' => Some(Token::Brace(Left)),
-        '}' => Some(Token::Brace(Right)),
-        '(' => Some(Token::Parenthesis(Left)),
-        ')' => Some(Token::Parenthesis(Right)),
-        ';' => Some(Token::Semicolon),
-        '+' => Some(Token::Operator(Add)),
-        '-' => Some(Token::Operator(Sub)),
-        '*' => Some(Token::Operator(Star)),
-        '/' => Some(Token::Operator(Div)),
-        '=' => Some(Token::Operator(Equal)),
-        '>' => Some(Token::Operator(Greater)),
-        '<' => Some(Token::Operator(Less)),
-        ',' => Some(Token::Comma),
-        '\t' => Some(Token::Whitespace),
-        '\r' => Some(Token::Whitespace),
-        '\n' => Some(Token::Whitespace),
+fn tokenize_single_char(buf: &[char], pos: usize) -> Option<(Token,usize)> {
+    let sin_tok = |tok| Some((tok,pos+1));
+
+    // matching here is constant time, since hopefully LLVM jump tables this
+    match buf[pos] {
+        ' ' => sin_tok(Token::Whitespace),
+        '{' => sin_tok(Token::Brace(Left)),
+        '}' => sin_tok(Token::Brace(Right)),
+        '(' => sin_tok(Token::Parenthesis(Left)),
+        ')' => sin_tok(Token::Parenthesis(Right)),
+        ';' => sin_tok(Token::Semicolon),
+        '+' => sin_tok(Token::Operator(Add)),
+        '-' => sin_tok(Token::Operator(Sub)),
+        '*' => sin_tok(Token::Operator(Star)),
+        '/' => {
+            // this is ugly and awful comment detection
+            // comments are stupid
+            let c = buf.get(pos+1);
+            if c.is_some() && *c.unwrap() == '/' {
+                let mut local_pos = pos+2;
+                let mut test_c = buf.get(local_pos);
+                while test_c.is_some() && *test_c.unwrap() != '\n' {
+                    local_pos+=1;
+                    test_c = buf.get(local_pos);
+                }
+                return Some((Token::Whitespace,local_pos+1));
+            } else {
+                return sin_tok(Token::Operator(Div));
+            }
+        },
+        '=' => sin_tok(Token::Operator(Equal)),
+        '>' => sin_tok(Token::Operator(Greater)),
+        '<' => sin_tok(Token::Operator(Less)),
+        ',' => sin_tok(Token::Comma),
+        '"' => {
+            // quotations are for strings
+            let tup = tokenize_str(&buf,pos);
+            if tup.is_some() {
+                return tup;
+            } else {
+                panic!("string expected, closing quotation not found...");
+            }
+        },
+        '\t' => sin_tok(Token::Whitespace),
+        '\r' => sin_tok(Token::Whitespace),
+        '\n' => sin_tok(Token::Whitespace),
         _   => None,
     }
 }
