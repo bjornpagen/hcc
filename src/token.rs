@@ -47,6 +47,8 @@ pub enum Operator {
     Div,
     Star,
     Equal,
+    Greater,
+    Less,
 }
     
 #[derive(Debug)]

@@ -47,7 +47,7 @@ fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option<(Token, usize)> {
     }
 
     // instantly return our token if it is single char
-    let tok = tokenize_single_char(*c);
+    let tok = tokenize_single_char(&c);
     if tok.is_some() {
         let tok = tok.unwrap();
         return Some((tok, pos+1))
@@ -65,7 +65,7 @@ fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option<(Token, usize)> {
     while current_char.is_some()  {
         let c = current_char.unwrap();
         // if that char is single-char tokenizable, we have our final token
-        if tokenize_single_char(*c).is_some() {
+        if tokenize_single_char(&c).is_some() {
             return Some((tokenize_multi_char(&lit_buf[..]), local_pos));
         } else {
             // if not, do it again
@@ -79,8 +79,9 @@ fn parse_token_at(buf: &Vec<char>, pos: usize) -> Option<(Token, usize)> {
 }
 
 // used to parse single-char tokens
-fn tokenize_single_char(c: char) -> Option<Token> {
-    match c {
+fn tokenize_single_char(c: &char) -> Option<Token> {
+    match *c {
+        ' ' => Some(Token::Whitespace),
         '{' => Some(Token::Brace(Left)),
         '}' => Some(Token::Brace(Right)),
         '(' => Some(Token::Parenthesis(Left)),
@@ -91,8 +92,9 @@ fn tokenize_single_char(c: char) -> Option<Token> {
         '*' => Some(Token::Operator(Star)),
         '/' => Some(Token::Operator(Div)),
         '=' => Some(Token::Operator(Equal)),
+        '>' => Some(Token::Operator(Greater)),
+        '<' => Some(Token::Operator(Less)),
         ',' => Some(Token::Comma),
-        ' ' => Some(Token::Whitespace),
         '\t' => Some(Token::Whitespace),
         '\r' => Some(Token::Whitespace),
         '\n' => Some(Token::Whitespace),
@@ -104,7 +106,7 @@ fn tokenize_single_char(c: char) -> Option<Token> {
 fn tokenize_multi_char(buf: &[char]) -> Token {
     lazy_static! {
          static ref RE_SET: RegexSet = RegexSet::new(&[
-            r"^[IU][0,8,16,32,64]$", // basetype
+            r"^[IU](0|8|16|32|64)$", // basetype
             r"^[A-z]+$", // anything with letters only
             r"^\d+$", // number
             r"^.+$", // anything else
