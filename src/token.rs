@@ -54,6 +54,7 @@ pub enum Operator {
 pub enum Token {
     Whitespace,
     Semicolon,
+    Comma,
     Brace(Direction),
     Bracket(Direction),
     Parenthesis(Direction),

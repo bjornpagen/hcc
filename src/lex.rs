@@ -91,6 +91,7 @@ fn tokenize_single_char(c: char) -> Option<Token> {
         '*' => Some(Token::Operator(Mul)),
         '/' => Some(Token::Operator(Div)),
         '=' => Some(Token::Operator(Equal)),
+        ',' => Some(Token::Comma),
         ' ' => Some(Token::Whitespace),
         '\t' => Some(Token::Whitespace),
         '\r' => Some(Token::Whitespace),
@@ -104,8 +105,7 @@ fn tokenize_multi_char(buf: &[char]) -> Token {
     lazy_static! {
          static ref RE_SET: RegexSet = RegexSet::new(&[
             r"^[IU][0,8,16,32,64]$", // basetype
-            r"^[a-z]+$", // keyword
-            r"^[A-z]+$", // identifier
+            r"^[A-z]+$", // anything with letters only
             r"^\d+$", // number
             r"^.+$", // anything else
         ]).unwrap();
@@ -132,26 +132,25 @@ fn tokenize_multi_char(buf: &[char]) -> Token {
                     _ => panic!(),
                 }
             ),
-        Some(1) => Token::Keyword(
+        Some(1) => {
                 match s.as_str() {
-                    "include" => Keyword::Include,
-                    "define" => Keyword::Define,
-                    "union" => Keyword::Union,
-                    "catch" => Keyword::Catch,
-                    "class" => Keyword::Class,
-                    "try" => Keyword::Try,
-                    "if" => Keyword::If,
-                    "else" => Keyword::Else,
-                    "for" => Keyword::For,
-                    "while" => Keyword::While,
-                    "extern" => Keyword::Extern,
-                    "return" => Keyword::Return,
-                    _ => panic!(),
+                    "include" => Token::Keyword(Keyword::Include),
+                    "define" => Token::Keyword(Keyword::Define),
+                    "union" => Token::Keyword(Keyword::Union),
+                    "catch" => Token::Keyword(Keyword::Catch),
+                    "class" => Token::Keyword(Keyword::Class),
+                    "try" => Token::Keyword(Keyword::Try),
+                    "if" => Token::Keyword(Keyword::If),
+                    "else" => Token::Keyword(Keyword::Else),
+                    "for" => Token::Keyword(Keyword::For),
+                    "while" => Token::Keyword(Keyword::While),
+                    "extern" => Token::Keyword(Keyword::Extern),
+                    "return" => Token::Keyword(Keyword::Return),
+                    _ => Token::Identifier(s),
                 }
-            ),
-        Some(2) => Token::Identifier(s),
-        Some(3) => Token::Number(s.parse::<u64>().unwrap()),
-        Some(4) => Token::Unknown,
+            },
+        Some(2) => Token::Number(s.parse::<u64>().unwrap()),
+        Some(3) => Token::Unknown,
         _ => panic!(),
     }
 }
