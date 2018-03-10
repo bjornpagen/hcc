@@ -1,15 +1,13 @@
 // transforms our file into (more) machine-readable tokens
 
-pub mod tokens;
-
 use regex::*;
-use preprocessing::tokens::*;
-use preprocessing::tokens::Keyword::*;
-use preprocessing::tokens::Direction::*;
-use preprocessing::tokens::Basetype::*;
+use token::*;
+use token::Keyword::*;
+use token::Direction::*;
+use token::Basetype::*;
 
 pub fn lex(buf: &Vec<char>) -> Vec<Token> {
-    let mut pos: usize = 0;
+    let pos: usize = 0;
     let mut token_list: Vec<Token> = Vec::new();
 
     // keep generating tokens until we reach the end of the file

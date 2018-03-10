@@ -3,6 +3,10 @@ name = "hcc"
 version = "0.1.0"
 authors = ["Bjorn Pagen <bjornpagen@gmail.com>"]
 
+[lib]
+name = "hcc"
+patch = "src/lib.rs"
+
 [dependencies]
 regex = "0.2"
 lazy_static = "1.0.0"

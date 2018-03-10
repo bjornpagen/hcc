@@ -1,22 +1,15 @@
 // main for hcc
 
-#![feature(io)]
+extern crate hcc;
 
-extern crate regex;
-
-#[macro_use]
-extern crate lazy_static;
-
-use std::env;
-
-mod load;
-mod preprocessing;
+use hcc::lex::*;
+use hcc::io::*;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = std::env::args().collect();
 
-    let chars = load::file_to_chars(args[1].as_str());
-    let token_list = preprocessing::lex(&chars);
+    let chars = file_to_chars(args[1].as_str());
+    let token_list = lex(&chars);
 
     for tok in token_list {
         println!("{:?}", tok);
