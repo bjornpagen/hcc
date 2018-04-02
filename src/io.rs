@@ -18,3 +18,4 @@ pub fn file_to_chars(file_path: &str) -> Vec<char> {
 
     file_contents
 }
+
