@@ -120,8 +120,8 @@ fn tokenize_multi_char(buf: &[char]) -> Token {
     lazy_static! {
          static ref RE_SET: RegexSet = RegexSet::new(&[
             r"^[IU](0|8|16|32|64)$", // basetype
-            r"^[A-z]+$", // anything with letters only
             r"^\d+$", // number
+            r"^[\w]+$", // anything with letters only
             r"^.+$", // anything else
         ]).unwrap();
     }
@@ -147,7 +147,8 @@ fn tokenize_multi_char(buf: &[char]) -> Token {
                     _ => panic!(),
                 }
             ),
-        Some(1) => {
+        Some(1) => Token::Number(s.parse::<u64>().unwrap()),
+        Some(2) => {
                 match s.as_str() {
                     "include" => Token::Keyword(Keyword::Include),
                     "define" => Token::Keyword(Keyword::Define),
@@ -164,7 +165,6 @@ fn tokenize_multi_char(buf: &[char]) -> Token {
                     _ => Token::Identifier(s),
                 }
             },
-        Some(2) => Token::Number(s.parse::<u64>().unwrap()),
         Some(3) => Token::Unknown,
         _ => panic!(),
     }
